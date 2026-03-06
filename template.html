@@ -514,14 +514,14 @@ function renderList() {
     const byDay = {};
     monthData.forEach(e => {
       if (!byDay[e.day]) byDay[e.day] = {};
-      if (!byDay[e.day][e.courseName]) byDay[e.day][e.courseName] = { codes: [], label: e.label };
-      byDay[e.day][e.courseName].codes.push(e.code);
+      if (!byDay[e.day][e.courseName]) byDay[e.day][e.courseName] = { people: [], label: e.label };
+      byDay[e.day][e.courseName].people.push({ code: e.code, name: e.name || '' });
     });
     let panelIdx = 0;
     Object.keys(byDay).sort((a,b)=>+a-+b).forEach(day => {
       Object.entries(byDay[day]).forEach(([cname, info]) => {
         const pid = 'cp' + (panelIdx++);
-        const codesHtml = info.codes.map(c => `<span class="code-tag">${c}</span>`).join('');
+        const codesHtml = info.people.map(p => `<span class="code-tag">${p.name ? p.name + ' ' : ''}${p.code}</span>`).join('');
         html += `<div class="course-list-item" onclick="togglePanel('${pid}')">
           <div class="course-date-badge">
             <div class="course-date-month">${MONTH_NAMES[currentMonth-1]}</div>
@@ -529,7 +529,7 @@ function renderList() {
           </div>
           <div class="course-info">
             <div class="course-name">${cname}</div>
-            <div class="course-meta">${info.label}・${info.codes.length} 人 ▾</div>
+            <div class="course-meta">${info.label}・${info.people.length} 人 ▾</div>
           </div>
           <div class="dot-indicator" style="background:${courseColorMap[cname]}"></div>
         </div>
