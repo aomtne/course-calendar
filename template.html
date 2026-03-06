@@ -277,6 +277,37 @@
     flex-shrink: 0;
   }
 
+  .course-list-item { cursor: pointer; }
+
+  .code-panel {
+    display: none;
+    padding: 8px 8px 8px 60px;
+    animation: slideDown 0.2s ease;
+  }
+
+  .code-panel.open { display: block; }
+
+  .code-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .code-tag {
+    background: #eef2f7;
+    color: var(--primary);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    font-family: 'Courier New', monospace;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
   .empty-msg {
     text-align: center;
     padding: 30px;
@@ -479,26 +510,30 @@ function renderList() {
   let html = `<h3>${MONTH_NAMES[currentMonth-1]}課程清單</h3>`;
 
   if (isAllMode) {
-    // 彙總：依天分組
+    // 彙總：依天分組，點擊可展開人員代號
     const byDay = {};
     monthData.forEach(e => {
       if (!byDay[e.day]) byDay[e.day] = {};
-      if (!byDay[e.day][e.courseName]) byDay[e.day][e.courseName] = { cnt: 0, label: e.label };
-      byDay[e.day][e.courseName].cnt++;
+      if (!byDay[e.day][e.courseName]) byDay[e.day][e.courseName] = { codes: [], label: e.label };
+      byDay[e.day][e.courseName].codes.push(e.code);
     });
+    let panelIdx = 0;
     Object.keys(byDay).sort((a,b)=>+a-+b).forEach(day => {
       Object.entries(byDay[day]).forEach(([cname, info]) => {
-        html += `<div class="course-list-item">
+        const pid = 'cp' + (panelIdx++);
+        const codesHtml = info.codes.map(c => `<span class="code-tag">${c}</span>`).join('');
+        html += `<div class="course-list-item" onclick="togglePanel('${pid}')">
           <div class="course-date-badge">
             <div class="course-date-month">${MONTH_NAMES[currentMonth-1]}</div>
             <div class="course-date-day">${day}</div>
           </div>
           <div class="course-info">
             <div class="course-name">${cname}</div>
-            <div class="course-meta">${info.label}・${info.cnt} 人</div>
+            <div class="course-meta">${info.label}・${info.codes.length} 人 ▾</div>
           </div>
           <div class="dot-indicator" style="background:${courseColorMap[cname]}"></div>
-        </div>`;
+        </div>
+        <div class="code-panel" id="${pid}"><div class="code-tags">${codesHtml}</div></div>`;
       });
     });
   } else {
@@ -522,6 +557,12 @@ function renderList() {
 
 // 初始化
 searchAll();
+
+function togglePanel(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
 document.getElementById('codeInput').addEventListener('keydown', e => { if (e.key === 'Enter') searchCode(); });
 </script>
 </body>
