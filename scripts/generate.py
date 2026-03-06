@@ -57,13 +57,35 @@ def parse_date_cell(value, course_name):
     return None
 
 
+def parse_name_map(wb):
+    """Parse 姓名代碼 sheet to build code→name mapping."""
+    name_map = {}
+    if '姓名代碼' not in wb.sheetnames:
+        return name_map
+    ws = wb['姓名代碼']
+    for row in ws.iter_rows(values_only=True):
+        if row[0] is None or row[1] is None:
+            continue
+        name = str(row[0]).strip()
+        try:
+            code = str(int(float(row[1])))
+        except (ValueError, TypeError):
+            code = str(row[1]).strip()
+        if name and code:
+            name_map[code] = name
+    return name_map
+
+
 def parse_excel(xlsx_path):
     """Parse the Excel file and return a list of RAW_DATA entries."""
     wb = openpyxl.load_workbook(xlsx_path)
 
+    # Build code → name mapping
+    name_map = parse_name_map(wb)
+
     # Collect data across all data sheets, keyed by (code, course_name)
     # Skip non-data sheets
-    skip_sheets = {'代碼設定', '衝堂'}
+    skip_sheets = {'代碼設定', '衝堂', '姓名代碼', '人員填寫狀況'}
     all_entries = {}  # (code, course_name) → {month, day, label}
 
     for sheet_name in wb.sheetnames:
@@ -108,6 +130,7 @@ def parse_excel(xlsx_path):
                     # Later sheets overwrite earlier ones for same (code, course)
                     all_entries[(code, course_name)] = {
                         "code": code,
+                        "name": name_map.get(code, ""),
                         "courseName": course_name,
                         "month": month,
                         "day": day,
