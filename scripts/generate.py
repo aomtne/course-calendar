@@ -2,6 +2,10 @@
 """
 Parse Excel (問卷系統_月曆顯示.xlsx) and regenerate index.html with updated RAW_DATA.
 Used by GitHub Actions to auto-update the course calendar.
+
+Course columns are dynamically detected from index 2 onward in each sheet's header row.
+This means any new courses added to the Excel file are automatically included —
+no code changes needed.
 """
 
 import json
@@ -85,7 +89,7 @@ def parse_excel(xlsx_path):
 
     # Collect data across all data sheets, keyed by (code, course_name)
     # Skip non-data sheets
-    skip_sheets = {'代碼設定', '衝堂', '姓名代碼', '人員填寫狀況'}
+    skip_sheets = {'代碼設定', '衝堂', '姓名代碼', '人員填寫狀況', '人員填寫情形'}
     all_entries = {}  # (code, course_name) → {month, day, label}
 
     for sheet_name in wb.sheetnames:
@@ -114,7 +118,7 @@ def parse_excel(xlsx_path):
             if not code:
                 continue
 
-            # Columns 2+ are course columns
+            # Columns 2+ are course columns (dynamically detected)
             for col_idx in range(2, len(headers)):
                 if col_idx >= len(row):
                     break
@@ -122,6 +126,8 @@ def parse_excel(xlsx_path):
                 if not course_name:
                     continue
                 course_name = str(course_name).strip()
+                # Clean up newlines in course names (e.g. from merged cells)
+                course_name = course_name.replace('\n', '')
 
                 cell_val = row[col_idx]
                 result = parse_date_cell(cell_val, course_name)
@@ -165,16 +171,17 @@ def update_html(template_path, output_path, raw_data):
 
 
 def main():
-    # Determine paths
-    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    data_dir = os.path.join(repo_root, 'data')
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_root = os.path.dirname(script_dir)
+
     template_path = os.path.join(repo_root, 'template.html')
     output_path = os.path.join(repo_root, 'index.html')
+    data_dir = os.path.join(repo_root, 'data')
 
-    # Find the latest Excel file in data/
+    # Find Excel files in data/
     xlsx_files = glob.glob(os.path.join(data_dir, '*.xlsx'))
     if not xlsx_files:
-        print("ERROR: No .xlsx files found in data/ directory.")
+        print("ERROR: No .xlsx files found in data/")
         sys.exit(1)
 
     # Use the most recently modified file
