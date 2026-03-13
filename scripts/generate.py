@@ -62,21 +62,35 @@ def parse_date_cell(value, course_name):
 
 
 def parse_name_map(wb):
-    """Parse 姓名代碼 sheet to build code→name mapping."""
+    """Build code→name mapping from 姓名代碼 sheet and/or 林訓 sheet."""
     name_map = {}
-    if '姓名代碼' not in wb.sheetnames:
-        return name_map
-    ws = wb['姓名代碼']
-    for row in ws.iter_rows(values_only=True):
-        if row[0] is None or row[1] is None:
-            continue
-        name = str(row[0]).strip()
-        try:
-            code = str(int(float(row[1])))
-        except (ValueError, TypeError):
-            code = str(row[1]).strip()
-        if name and code:
-            name_map[code] = name
+    # Try 姓名代碼 sheet first
+    if '姓名代碼' in wb.sheetnames:
+        ws = wb['姓名代碼']
+        for row in ws.iter_rows(values_only=True):
+            if row[0] is None or row[1] is None:
+                continue
+            name = str(row[0]).strip()
+            try:
+                code = str(int(float(row[1])))
+            except (ValueError, TypeError):
+                code = str(row[1]).strip()
+            if name and code:
+                name_map[code] = name
+    # Also try 林訓 sheet (col0=name, col1=code)
+    for sn in wb.sheetnames:
+        if '林訓' in sn:
+            ws = wb[sn]
+            for row in ws.iter_rows(values_only=True):
+                if row[0] is None or row[1] is None:
+                    continue
+                name = str(row[0]).strip()
+                try:
+                    code = str(int(float(row[1])))
+                except (ValueError, TypeError):
+                    code = str(row[1]).strip()
+                if name and code and code not in name_map:
+                    name_map[code] = name
     return name_map
 
 
