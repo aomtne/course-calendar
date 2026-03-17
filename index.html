@@ -3,63 +3,67 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>課程安排月曆</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<title>課程月曆</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+  
   :root {
-    --primary: #2563eb;
-    --accent: #f97316;
-    --accent2: #3b82f6;
-    --bg: #f1f5f9;
+    --bg: #f0f2f5;
     --card: #ffffff;
-    --text: #1e293b;
-    --text2: #64748b;
-    --text3: #94a3b8;
-    --muted: #94a3b8;
-    --border: #e2e8f0;
-    --surface2: #f8fafc;
-    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    --primary: #1a3a5c;
+    --accent: #e85d26;
+    --accent2: #2e86ab;
+    --text: #2c3e50;
+    --muted: #7f8c8d;
+    --border: #dde2e8;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
     --radius: 12px;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     font-family: 'Noto Sans TC', sans-serif;
     background: var(--bg);
     color: var(--text);
-    line-height: 1.5;
+    min-height: 100vh;
   }
 
-  .header {
-    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+  header {
+    background: var(--primary);
     color: white;
-    padding: 20px 16px 16px;
-    text-align: center;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   }
 
-  h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
-  .subtitle { font-size: 0.8rem; opacity: 0.8; margin-bottom: 14px; }
+  header h1 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    flex: 1;
+  }
 
-  .search-box {
+  .search-wrap {
     display: flex;
     gap: 8px;
-    max-width: 500px;
-    margin: 0 auto;
-    justify-content: center;
+    align-items: center;
   }
 
   #codeInput {
-    flex: 1;
-    max-width: 220px;
-    padding: 7px 14px;
+    width: 130px;
+    padding: 7px 12px;
+    border: 2px solid rgba(255,255,255,0.3);
     border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.3);
     background: rgba(255,255,255,0.15);
     color: white;
     font-size: 0.9rem;
-    font-family: 'DM Mono', monospace;
+    font-family: inherit;
     outline: none;
     transition: border-color 0.2s;
   }
@@ -78,7 +82,10 @@
     transition: all 0.15s;
   }
 
-  .btn-primary { background: var(--accent); color: white; }
+  .btn-search {
+    background: var(--accent);
+    color: white;
+  }
 
   .btn-all {
     background: rgba(255,255,255,0.2);
@@ -105,7 +112,7 @@
 
   .status-label { color: var(--muted); }
   .status-val { font-weight: 600; color: var(--primary); }
-  .status-count {
+  .status-count { 
     background: var(--accent);
     color: white;
     padding: 2px 10px;
@@ -169,6 +176,7 @@
   }
 
   .cal-day:not(.empty):hover { background: #f8f9fa; }
+
   .cal-day.empty { opacity: 0; pointer-events: none; }
 
   .cal-day.today .day-num {
@@ -182,93 +190,94 @@
     justify-content: center;
   }
 
-  .cal-day.sunday .day-num { color: #e74c3c; }
-  .cal-day.saturday .day-num { color: var(--accent2); }
-
   .day-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    font-weight: 500;
-    margin-bottom: 2px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
   }
 
+  .sunday .day-num { color: #e74c3c; }
+  .saturday .day-num { color: var(--accent2); }
+
+  .events-in-day { display: flex; flex-direction: column; gap: 2px; }
+
   .ev-chip {
-    font-size: 0.6rem;
-    color: white;
+    font-size: 0.63rem;
     padding: 1px 4px;
     border-radius: 3px;
-    margin-bottom: 1px;
+    color: white;
+    line-height: 1.4;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 100%;
+    cursor: pointer;
   }
 
   .ev-more {
     font-size: 0.6rem;
-    color: var(--text3);
-    padding-left: 4px;
+    color: var(--muted);
+    padding: 0 2px;
   }
 
   .course-list {
     background: var(--card);
     border-radius: var(--radius);
+    padding: 14px;
     box-shadow: var(--shadow);
-    overflow: hidden;
-    margin-bottom: 14px;
   }
 
-  .course-list-title {
-    padding: 14px 20px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text2);
-    border-bottom: 1px solid var(--border);
-    background: var(--surface2);
-    letter-spacing: 0.04em;
+  .course-list h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
   }
 
   .course-list-item {
     display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    padding: 12px 20px;
-    border-bottom: 1px solid var(--border);
+    align-items: center;
+    gap: 12px;
+    padding: 10px 8px;
+    border-radius: 8px;
     transition: background 0.15s;
-    cursor: pointer;
   }
 
-  .course-list-item:last-child { border-bottom: none; }
-  .course-list-item:hover { background: var(--surface2); }
+  .course-list-item:hover { background: #f8f9fa; }
 
   .course-date-badge {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 6px 10px;
-    text-align: center;
-    min-width: 56px;
     flex-shrink: 0;
+    width: 44px;
+    text-align: center;
+    background: var(--primary);
+    color: white;
+    border-radius: 8px;
+    padding: 4px 0;
   }
 
-  .course-date-month { font-size: 0.65rem; color: var(--text3); }
-  .course-date-day {
-    font-family: 'DM Mono', monospace;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1;
-  }
+  .course-date-month { font-size: 0.65rem; opacity: 0.8; }
+  .course-date-day { font-size: 1.1rem; font-weight: 700; line-height: 1.2; }
 
-  .course-info { flex: 1; }
-  .course-name { font-size: 0.85rem; font-weight: 500; margin-bottom: 3px; }
-  .course-meta { font-size: 0.75rem; color: var(--text2); }
+  .course-info { flex: 1; min-width: 0; }
+  .course-name { font-size: 0.85rem; font-weight: 500; }
+  .course-meta { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
 
   .dot-indicator {
-    width: 8px; height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    margin-top: 4px;
     flex-shrink: 0;
   }
+
+  .course-list-item { cursor: pointer; }
 
   .code-panel {
     display: none;
@@ -291,17 +300,7 @@
     border-radius: 6px;
     font-size: 0.78rem;
     font-weight: 500;
-  }
-
-  .code-tag .tag-name {
-    font-family: 'Noto Sans TC', sans-serif;
-    margin-right: 4px;
-  }
-
-  .code-tag .tag-code {
-    font-family: 'DM Mono', monospace;
-    opacity: 0.7;
-    font-size: 0.72rem;
+    font-family: 'Courier New', monospace;
   }
 
   @keyframes slideDown {
@@ -317,31 +316,21 @@
   }
 
   .legend {
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 12px 16px;
-    box-shadow: var(--shadow);
-    margin-bottom: 14px;
-  }
-
-  .legend-title {
-    font-size: 0.75rem;
-    color: var(--text3);
-    margin-bottom: 8px;
-  }
-
-  .legend-items {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
+    margin-bottom: 14px;
   }
 
   .legend-item {
     display: flex;
     align-items: center;
-    gap: 4px;
-    font-size: 0.72rem;
-    color: var(--text2);
+    gap: 5px;
+    background: var(--card);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    box-shadow: var(--shadow);
   }
 
   .legend-dot {
@@ -352,107 +341,88 @@
   }
 
   @media (max-width: 600px) {
-    .cal-day { min-height: 60px; padding: 4px; }
-    .ev-chip { font-size: 0.55rem; }
-    h1 { font-size: 1.3rem; }
+    header { flex-wrap: wrap; }
+    .search-wrap { width: 100%; }
+    #codeInput { flex: 1; }
+    .cal-day { min-height: 54px; }
+    .ev-chip { font-size: 0.55rem; padding: 1px 2px; }
   }
 </style>
 </head>
 <body>
-<div class="header">
-  <h1>📅 課程安排月曆</h1>
-  <p class="subtitle">輸入個人代碼查詢課程，或查看全體彙總</p>
-  <div class="search-box">
-    <input type="text" id="codeInput" placeholder="輸入代碼（例：956502）" maxlength="10"
-      onkeydown="if(event.key==='Enter')search()">
-    <button class="btn btn-primary" onclick="search()">查詢</button>
-    <button class="btn btn-all" onclick="searchAll()">全體彙總</button>
+
+<header>
+  <h1>📅 課程月曆</h1>
+  <div class="search-wrap">
+    <input type="text" id="codeInput" placeholder="輸入個人代碼" maxlength="10">
+    <button class="btn btn-search" onclick="searchCode()">查詢</button>
+    <button class="btn btn-all" onclick="searchAll()">全體</button>
   </div>
-</div>
+</header>
 
 <div class="container">
-  <div id="userInfo" style="display:none"></div>
-  <div id="main" style="display:none">
-    <div class="month-tabs" id="monthTabs"></div>
-    <div class="calendar-grid" id="calGrid"></div>
-    <div class="legend" id="legendBox">
-      <div class="legend-title">圖例</div>
-      <div class="legend-items" id="legend"></div>
-    </div>
-    <div class="course-list" id="courseList">
-      <div class="course-list-title" id="listTitle">課程清單</div>
-      <div id="listBody"></div>
-    </div>
+  <div class="status-bar">
+    <span class="status-label">顯示：<span class="status-val" id="statusLabel">全體彙總</span></span>
+    <span class="status-count" id="statusCount">0 筆</span>
   </div>
+
+  <div class="month-tabs" id="monthTabs"></div>
+  <div class="legend" id="legend"></div>
+  <div class="calendar-grid" id="calendarGrid"></div>
+  <div class="course-list" id="courseList"></div>
 </div>
 
 <script>
-const RAW_DATA = [{"code": "121172", "name": "蔡武哲", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "121172", "name": "蔡武哲", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "121172", "name": "蔡武哲", "courseName": "施工架組配作業主管", "month": 7, "day": 13, "label": "一天"}, {"code": "121172", "name": "蔡武哲", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "121172", "name": "蔡武哲", "courseName": "職業安全衛生業務主管", "month": 7, "day": 22, "label": "一天"}, {"code": "121172", "name": "蔡武哲", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "121172", "name": "蔡武哲", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "121172", "name": "蔡武哲", "courseName": "健檢", "month": 7, "day": 30, "label": "三總"}, {"code": "121172", "name": "蔡武哲", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "121172", "name": "蔡武哲", "courseName": "輻射防護與管制實務訓練班(可積分)", "month": 8, "day": 10, "label": "8/10~8/14"}, {"code": "121172", "name": "蔡武哲", "courseName": "急救人員", "month": 8, "day": 31, "label": "下午"}, {"code": "121172", "name": "蔡武哲", "courseName": "職業安全衛生委員會成員在職教育訓練", "month": 9, "day": 2, "label": "上午"}, {"code": "159297", "name": "林炳宏", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "159297", "name": "林炳宏", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "159297", "name": "林炳宏", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "159297", "name": "林炳宏", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "159297", "name": "林炳宏", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "159297", "name": "林炳宏", "courseName": "缺氧作業主管", "month": 7, "day": 31, "label": "一天"}, {"code": "159297", "name": "林炳宏", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "159297", "name": "林炳宏", "courseName": "危害辨識", "month": 8, "day": 19, "label": "上午"}, {"code": "159297", "name": "林炳宏", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "224307", "name": "許庭彰", "courseName": "健檢", "month": 3, "day": 5, "label": "三總"}, {"code": "224307", "name": "許庭彰", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "271003", "name": "林宏儒", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "271003", "name": "林宏儒", "courseName": "甲種職業安全衛生業務主管教育訓練班", "month": 5, "day": 4, "label": "5/4~5/12"}, {"code": "271003", "name": "林宏儒", "courseName": "視覺化資料分析班", "month": 6, "day": 8, "label": "6/8~6/12"}, {"code": "271003", "name": "林宏儒", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "271003", "name": "林宏儒", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "271003", "name": "林宏儒", "courseName": "健檢", "month": 7, "day": 13, "label": "三總"}, {"code": "271003", "name": "林宏儒", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "271003", "name": "林宏儒", "courseName": "有機溶劑作業主管", "month": 7, "day": 17, "label": "一天"}, {"code": "271003", "name": "林宏儒", "courseName": "施工架組配作業主管", "month": 7, "day": 20, "label": "一天"}, {"code": "271003", "name": "林宏儒", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "271003", "name": "林宏儒", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "271003", "name": "林宏儒", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 27, "label": "上午"}, {"code": "271003", "name": "林宏儒", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "365700", "name": "陳柏均", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "365700", "name": "陳柏均", "courseName": "有機溶劑作業主管", "month": 7, "day": 3, "label": "一天"}, {"code": "365700", "name": "陳柏均", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "365700", "name": "陳柏均", "courseName": "職業安全衛生業務主管", "month": 7, "day": 15, "label": "一天"}, {"code": "365700", "name": "陳柏均", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "365700", "name": "陳柏均", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "365700", "name": "陳柏均", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "365700", "name": "陳柏均", "courseName": "健檢", "month": 7, "day": 31, "label": "中心"}, {"code": "365700", "name": "陳柏均", "courseName": "施工架組配作業主管", "month": 8, "day": 3, "label": "一天"}, {"code": "365700", "name": "陳柏均", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "365700", "name": "陳柏均", "courseName": "急救人員", "month": 8, "day": 31, "label": "下午"}, {"code": "365700", "name": "陳柏均", "courseName": "領班管理研習(TWI)班", "month": 12, "day": 7, "label": "12/7~12/11"}, {"code": "420048", "name": "吳志成", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "420048", "name": "吳志成", "courseName": "健檢", "month": 4, "day": 13, "label": "中心"}, {"code": "420048", "name": "吳志成", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "420048", "name": "吳志成", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "420048", "name": "吳志成", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "420048", "name": "吳志成", "courseName": "有機溶劑作業主管", "month": 7, "day": 10, "label": "一天"}, {"code": "420048", "name": "吳志成", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "420048", "name": "吳志成", "courseName": "缺氧作業主管", "month": 8, "day": 7, "label": "一天"}, {"code": "420048", "name": "吳志成", "courseName": "荷重一公噸以上堆高機操作人員", "month": 8, "day": 10, "label": "上午"}, {"code": "420048", "name": "吳志成", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 11, "label": "上午"}, {"code": "420048", "name": "吳志成", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "420048", "name": "吳志成", "courseName": "領班管理研習(TWI)班", "month": 12, "day": 7, "label": "12/7~12/11"}, {"code": "420099", "name": "黃嵩捷", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "420099", "name": "黃嵩捷", "courseName": "職業安全衛生業務主管", "month": 7, "day": 15, "label": "一天"}, {"code": "420099", "name": "黃嵩捷", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "420099", "name": "黃嵩捷", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "420099", "name": "黃嵩捷", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "420099", "name": "黃嵩捷", "courseName": "施工架組配作業主管", "month": 8, "day": 3, "label": "一天"}, {"code": "420099", "name": "黃嵩捷", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 13, "label": "上午"}, {"code": "420099", "name": "黃嵩捷", "courseName": "急救人員", "month": 8, "day": 31, "label": "下午"}, {"code": "424503", "name": "楊竣宇", "courseName": "輻射防護教育訓練", "month": 3, "day": 5, "label": "大潭"}, {"code": "424503", "name": "楊竣宇", "courseName": "健檢", "month": 5, "day": 5, "label": "基隆長庚"}, {"code": "424503", "name": "楊竣宇", "courseName": "有機溶劑作業主管", "month": 7, "day": 3, "label": "一天"}, {"code": "424503", "name": "楊竣宇", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "424503", "name": "楊竣宇", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "424503", "name": "楊竣宇", "courseName": "施工架組配作業主管", "month": 7, "day": 13, "label": "一天"}, {"code": "424503", "name": "楊竣宇", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "424503", "name": "楊竣宇", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "424503", "name": "楊竣宇", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "424503", "name": "楊竣宇", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "438515", "name": "黃鴻鈞", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "438515", "name": "黃鴻鈞", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "438515", "name": "黃鴻鈞", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "438515", "name": "黃鴻鈞", "courseName": "有機溶劑作業主管", "month": 7, "day": 10, "label": "一天"}, {"code": "438515", "name": "黃鴻鈞", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "438515", "name": "黃鴻鈞", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "438515", "name": "黃鴻鈞", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "438515", "name": "黃鴻鈞", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "440471", "name": "林時沂", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "440471", "name": "林時沂", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "440471", "name": "林時沂", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "440471", "name": "林時沂", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "440471", "name": "林時沂", "courseName": "職業安全衛生業務主管", "month": 9, "day": 9, "label": "一天"}, {"code": "441802", "name": "吳喬隆", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "441802", "name": "吳喬隆", "courseName": "有機溶劑作業主管", "month": 7, "day": 10, "label": "一天"}, {"code": "441802", "name": "吳喬隆", "courseName": "職業安全衛生業務主管", "month": 7, "day": 15, "label": "一天"}, {"code": "441802", "name": "吳喬隆", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "441802", "name": "吳喬隆", "courseName": "施工架組配作業主管", "month": 7, "day": 20, "label": "一天"}, {"code": "441802", "name": "吳喬隆", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "441802", "name": "吳喬隆", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "441802", "name": "吳喬隆", "courseName": "荷重一公噸以上堆高機操作人員", "month": 8, "day": 17, "label": "上午"}, {"code": "441802", "name": "吳喬隆", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "485918", "name": "張綺真", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "485918", "name": "張綺真", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "485918", "name": "張綺真", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "485918", "name": "張綺真", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "485918", "name": "張綺真", "courseName": "急救人員", "month": 8, "day": 31, "label": "下午"}, {"code": "535474", "name": "陳思豪", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "535474", "name": "陳思豪", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "535474", "name": "陳思豪", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "572964", "name": "鍾銘軒", "courseName": "健檢", "month": 3, "day": 2, "label": "中心"}, {"code": "572964", "name": "鍾銘軒", "courseName": "輻射防護教育訓練", "month": 3, "day": 5, "label": "大潭"}, {"code": "572964", "name": "鍾銘軒", "courseName": "有機溶劑作業主管", "month": 7, "day": 3, "label": "一天"}, {"code": "572964", "name": "鍾銘軒", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "572964", "name": "鍾銘軒", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "572964", "name": "鍾銘軒", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "572964", "name": "鍾銘軒", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "572964", "name": "鍾銘軒", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "572964", "name": "鍾銘軒", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "572964", "name": "鍾銘軒", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "572964", "name": "鍾銘軒", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "572964", "name": "鍾銘軒", "courseName": "領班管理研習(TWI)班", "month": 12, "day": 7, "label": "12/7~12/11"}, {"code": "572990", "name": "李振誠", "courseName": "輻射防護教育訓練", "month": 3, "day": 5, "label": "大潭"}, {"code": "572990", "name": "李振誠", "courseName": "有機溶劑作業主管", "month": 7, "day": 3, "label": "一天"}, {"code": "572990", "name": "李振誠", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "572990", "name": "李振誠", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "572990", "name": "李振誠", "courseName": "健檢", "month": 7, "day": 7, "label": "三總"}, {"code": "572990", "name": "李振誠", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "572990", "name": "李振誠", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "572990", "name": "李振誠", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "572990", "name": "李振誠", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "572990", "name": "李振誠", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "572990", "name": "李振誠", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "572990", "name": "李振誠", "courseName": "手動超音波檢測班", "month": 9, "day": 14, "label": "9/14~9/18"}, {"code": "572990", "name": "李振誠", "courseName": "領班管理研習(TWI)班", "month": 12, "day": 7, "label": "12/7~12/11"}, {"code": "613493", "name": "王于任", "courseName": "健檢", "month": 3, "day": 6, "label": "中心"}, {"code": "613493", "name": "王于任", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "613493", "name": "王于任", "courseName": "危害辨識", "month": 8, "day": 26, "label": "上午"}, {"code": "614230", "name": "林玟均", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "614230", "name": "林玟均", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "660872", "name": "陳世龍", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "667725", "name": "徐振華", "courseName": "輻射防護教育訓練", "month": 3, "day": 5, "label": "大潭"}, {"code": "667725", "name": "徐振華", "courseName": "健檢", "month": 5, "day": 7, "label": "基隆長庚"}, {"code": "667725", "name": "徐振華", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "667725", "name": "徐振華", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "667725", "name": "徐振華", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "667725", "name": "徐振華", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "667725", "name": "徐振華", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "667725", "name": "徐振華", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 6, "label": "上午"}, {"code": "667725", "name": "徐振華", "courseName": "荷重一公噸以上堆高機操作人員", "month": 8, "day": 10, "label": "上午"}, {"code": "667725", "name": "徐振華", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "667790", "name": "吳宇軒", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "667790", "name": "吳宇軒", "courseName": "有機溶劑作業主管", "month": 7, "day": 10, "label": "一天"}, {"code": "667790", "name": "吳宇軒", "courseName": "職業安全衛生業務主管", "month": 7, "day": 15, "label": "一天"}, {"code": "667790", "name": "吳宇軒", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "667790", "name": "吳宇軒", "courseName": "施工架組配作業主管", "month": 7, "day": 20, "label": "一天"}, {"code": "667790", "name": "吳宇軒", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "667790", "name": "吳宇軒", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "667790", "name": "吳宇軒", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 6, "label": "上午"}, {"code": "667790", "name": "吳宇軒", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "667802", "name": "陳政瑋", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "667802", "name": "陳政瑋", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "667802", "name": "陳政瑋", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "667802", "name": "陳政瑋", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "667802", "name": "陳政瑋", "courseName": "健檢", "month": 7, "day": 10, "label": "三總"}, {"code": "667802", "name": "陳政瑋", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "667802", "name": "陳政瑋", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "667802", "name": "陳政瑋", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "667802", "name": "陳政瑋", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "667802", "name": "陳政瑋", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "667903", "name": "李祐誠", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "667903", "name": "李祐誠", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "667903", "name": "李祐誠", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "667903", "name": "李祐誠", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "667903", "name": "李祐誠", "courseName": "荷重一公噸以上堆高機操作人員", "month": 8, "day": 14, "label": "上午"}, {"code": "777829", "name": "林士瑄", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "777829", "name": "林士瑄", "courseName": "健檢", "month": 7, "day": 3, "label": "中心"}, {"code": "777829", "name": "林士瑄", "courseName": "有機溶劑作業主管", "month": 7, "day": 3, "label": "一天"}, {"code": "777829", "name": "林士瑄", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "777829", "name": "林士瑄", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "777829", "name": "林士瑄", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "777829", "name": "林士瑄", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "777829", "name": "林士瑄", "courseName": "施工架組配作業主管", "month": 8, "day": 3, "label": "一天"}, {"code": "777829", "name": "林士瑄", "courseName": "基礎講師訓練班", "month": 8, "day": 10, "label": "8/10~8/14"}, {"code": "777829", "name": "林士瑄", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 20, "label": "上午"}, {"code": "777829", "name": "林士瑄", "courseName": "初級洩漏檢測班(示蹤法)", "month": 8, "day": 31, "label": "8/31~9/4"}, {"code": "777829", "name": "林士瑄", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "777829", "name": "林士瑄", "courseName": "職業安全衛生業務主管", "month": 9, "day": 9, "label": "一天"}, {"code": "777829", "name": "林士瑄", "courseName": "手動超音波檢測班", "month": 9, "day": 14, "label": "9/14~9/18"}, {"code": "794418", "name": "曾建銘", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "794418", "name": "曾建銘", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "794418", "name": "曾建銘", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "794418", "name": "曾建銘", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "794418", "name": "曾建銘", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "794418", "name": "曾建銘", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "794418", "name": "曾建銘", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "794418", "name": "曾建銘", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "798140", "name": "呂侑儒", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "798140", "name": "呂侑儒", "courseName": "健檢", "month": 5, "day": 25, "label": "中心"}, {"code": "798140", "name": "呂侑儒", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "798140", "name": "呂侑儒", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "798140", "name": "呂侑儒", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "798140", "name": "呂侑儒", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "798140", "name": "呂侑儒", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "798140", "name": "呂侑儒", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "798140", "name": "呂侑儒", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "813903", "name": "李晨鍠", "courseName": "輻射防護教育訓練", "month": 3, "day": 20, "label": "大潭"}, {"code": "813903", "name": "李晨鍠", "courseName": "健檢", "month": 5, "day": 29, "label": "中心"}, {"code": "813903", "name": "李晨鍠", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "813903", "name": "李晨鍠", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "813903", "name": "李晨鍠", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "813903", "name": "李晨鍠", "courseName": "施工架組配作業主管", "month": 7, "day": 20, "label": "一天"}, {"code": "813903", "name": "李晨鍠", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "813903", "name": "李晨鍠", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "813903", "name": "李晨鍠", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "813903", "name": "李晨鍠", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "813927", "name": "張謙凌", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "813927", "name": "張謙凌", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "813927", "name": "張謙凌", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "813927", "name": "張謙凌", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "813927", "name": "張謙凌", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "813927", "name": "張謙凌", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "813927", "name": "張謙凌", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "813927", "name": "張謙凌", "courseName": "荷重一公噸以上堆高機操作人員", "month": 8, "day": 10, "label": "上午"}, {"code": "813927", "name": "張謙凌", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "900151", "name": "楊智名", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "900151", "name": "楊智名", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "900151", "name": "楊智名", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 11, "label": "上午"}, {"code": "900151", "name": "楊智名", "courseName": "危害辨識", "month": 8, "day": 26, "label": "上午"}, {"code": "900151", "name": "楊智名", "courseName": "急救人員", "month": 9, "day": 1, "label": "下午"}, {"code": "900151", "name": "楊智名", "courseName": "職業安全衛生業務主管", "month": 9, "day": 9, "label": "一天"}, {"code": "919946", "name": "李家緯", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "919946", "name": "李家緯", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "919946", "name": "李家緯", "courseName": "施工架組配作業主管", "month": 7, "day": 13, "label": "一天"}, {"code": "919946", "name": "李家緯", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "919946", "name": "李家緯", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "919946", "name": "李家緯", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "919946", "name": "李家緯", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "919946", "name": "李家緯", "courseName": "危害辨識", "month": 8, "day": 19, "label": "上午"}, {"code": "919946", "name": "李家緯", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "919959", "name": "李昇晉", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "919959", "name": "李昇晉", "courseName": "健檢", "month": 5, "day": 26, "label": "三總"}, {"code": "919959", "name": "李昇晉", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "919959", "name": "李昇晉", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "919959", "name": "李昇晉", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "919959", "name": "李昇晉", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "919959", "name": "李昇晉", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 11, "label": "上午"}, {"code": "919959", "name": "李昇晉", "courseName": "初級洩漏檢測班(示蹤法)", "month": 8, "day": 31, "label": "8/31~9/4"}, {"code": "926814", "name": "吳忠憲", "courseName": "中級目視檢測班", "month": 7, "day": 6, "label": "7/6~7/15"}, {"code": "926814", "name": "吳忠憲", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "926814", "name": "吳忠憲", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "926814", "name": "吳忠憲", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "926814", "name": "吳忠憲", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "926814", "name": "吳忠憲", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 13, "label": "上午"}, {"code": "926814", "name": "吳忠憲", "courseName": "荷重一公噸以上堆高機操作人員", "month": 8, "day": 14, "label": "上午"}, {"code": "926814", "name": "吳忠憲", "courseName": "急救人員", "month": 9, "day": 1, "label": "上午"}, {"code": "926826", "name": "邱重豪", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "926826", "name": "邱重豪", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "926826", "name": "邱重豪", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "926826", "name": "邱重豪", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "926826", "name": "邱重豪", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "926826", "name": "邱重豪", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "926826", "name": "邱重豪", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 6, "label": "上午"}, {"code": "926826", "name": "邱重豪", "courseName": "荷重一公噸以上堆高機操作人員", "month": 8, "day": 10, "label": "上午"}, {"code": "926865", "name": "張志玄", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "926865", "name": "張志玄", "courseName": "健檢", "month": 5, "day": 7, "label": "基隆長庚"}, {"code": "926865", "name": "張志玄", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "926865", "name": "張志玄", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "926865", "name": "張志玄", "courseName": "施工架組配作業主管", "month": 7, "day": 13, "label": "一天"}, {"code": "926865", "name": "張志玄", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "926865", "name": "張志玄", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "926865", "name": "張志玄", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "926865", "name": "張志玄", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 27, "label": "上午"}, {"code": "926865", "name": "張志玄", "courseName": "急救人員", "month": 9, "day": 1, "label": "下午"}, {"code": "926927", "name": "廖元瑜", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "926927", "name": "廖元瑜", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "926927", "name": "廖元瑜", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "926927", "name": "廖元瑜", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "926927", "name": "廖元瑜", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "926927", "name": "廖元瑜", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "926941", "name": "陳嘉濬", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "926941", "name": "陳嘉濬", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "926941", "name": "陳嘉濬", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "926941", "name": "陳嘉濬", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "926941", "name": "陳嘉濬", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "926941", "name": "陳嘉濬", "courseName": "荷重一公噸以上堆高機操作人員", "month": 8, "day": 21, "label": "上午"}, {"code": "926941", "name": "陳嘉濬", "courseName": "交通安全講習", "month": 8, "day": 24, "label": "上午"}, {"code": "926941", "name": "陳嘉濬", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "956502", "name": "張瑋岑", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "956502", "name": "張瑋岑", "courseName": "健檢", "month": 7, "day": 3, "label": "中心"}, {"code": "956502", "name": "張瑋岑", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "956502", "name": "張瑋岑", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "956502", "name": "張瑋岑", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "956502", "name": "張瑋岑", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "956502", "name": "張瑋岑", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "958658", "name": "蔡瀚承", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "958658", "name": "蔡瀚承", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "958658", "name": "蔡瀚承", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "958658", "name": "蔡瀚承", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "958658", "name": "蔡瀚承", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "958658", "name": "蔡瀚承", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "958658", "name": "蔡瀚承", "courseName": "中級射線檢測班(資格專班)", "month": 8, "day": 17, "label": "8/17~9/2"}, {"code": "964698", "name": "朱彥豪", "courseName": "健檢", "month": 3, "day": 5, "label": "三總"}, {"code": "964698", "name": "朱彥豪", "courseName": "輻射防護教育訓練", "month": 3, "day": 20, "label": "大潭"}, {"code": "964698", "name": "朱彥豪", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "964698", "name": "朱彥豪", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "964698", "name": "朱彥豪", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "964698", "name": "朱彥豪", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "964698", "name": "朱彥豪", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "964698", "name": "朱彥豪", "courseName": "中級射線檢測班(資格專班)", "month": 8, "day": 17, "label": "8/17~9/2"}, {"code": "964698", "name": "朱彥豪", "courseName": "交通安全講習", "month": 8, "day": 24, "label": "上午"}, {"code": "964698", "name": "朱彥豪", "courseName": "初級洩漏檢測班(示蹤法)", "month": 8, "day": 31, "label": "8/31~9/4"}, {"code": "965552", "name": "陳 擎", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "965552", "name": "陳 擎", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "965552", "name": "陳 擎", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "965552", "name": "陳 擎", "courseName": "中級射線檢測班(資格專班)", "month": 8, "day": 17, "label": "8/17~9/2"}, {"code": "965552", "name": "陳 擎", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 27, "label": "上午"}, {"code": "965552", "name": "陳 擎", "courseName": "職業安全衛生業務主管", "month": 9, "day": 9, "label": "一天"}, {"code": "969081", "name": "吳祖年", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "969081", "name": "吳祖年", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "969081", "name": "吳祖年", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "969081", "name": "吳祖年", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "969081", "name": "吳祖年", "courseName": "中級射線檢測班(資格專班)", "month": 8, "day": 17, "label": "8/17~9/2"}, {"code": "977316", "name": "張承元", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "977316", "name": "張承元", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "977316", "name": "張承元", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "977316", "name": "張承元", "courseName": "職業安全衛生業務主管", "month": 7, "day": 29, "label": "一天"}, {"code": "977316", "name": "張承元", "courseName": "急救人員", "month": 8, "day": 31, "label": "下午"}, {"code": "995225", "name": "陳廉淞", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "995225", "name": "陳廉淞", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "995225", "name": "陳廉淞", "courseName": "職業安全衛生業務主管", "month": 8, "day": 5, "label": "一天"}, {"code": "995225", "name": "陳廉淞", "courseName": "中級射線檢測班(資格專班)", "month": 8, "day": 17, "label": "8/17~9/2"}];
+const RAW_DATA = [{"code": "121172", "name": "蔡武哲", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "121172", "name": "蔡武哲", "courseName": "有機溶劑作業主管", "month": 7, "day": 3, "label": "一天"}, {"code": "121172", "name": "蔡武哲", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "121172", "name": "蔡武哲", "courseName": "施工架組配作業主管", "month": 7, "day": 13, "label": "一天"}, {"code": "121172", "name": "蔡武哲", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "121172", "name": "蔡武哲", "courseName": "職業安全衛生業務主管", "month": 7, "day": 22, "label": "一天"}, {"code": "121172", "name": "蔡武哲", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "121172", "name": "蔡武哲", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "121172", "name": "蔡武哲", "courseName": "健檢", "month": 7, "day": 30, "label": "三總"}, {"code": "121172", "name": "蔡武哲", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "121172", "name": "蔡武哲", "courseName": "輻射防護與管制實務訓練班(可積分)", "month": 8, "day": 10, "label": "8/10~8/14"}, {"code": "121172", "name": "蔡武哲", "courseName": "急救人員", "month": 8, "day": 31, "label": "下午"}, {"code": "121172", "name": "蔡武哲", "courseName": "職業安全衛生委員會成員在職教育訓練", "month": 9, "day": 2, "label": "上午"}, {"code": "159297", "name": "林炳宏", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "159297", "name": "林炳宏", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "159297", "name": "林炳宏", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "159297", "name": "林炳宏", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "159297", "name": "林炳宏", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "159297", "name": "林炳宏", "courseName": "缺氧作業主管", "month": 7, "day": 31, "label": "一天"}, {"code": "159297", "name": "林炳宏", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "159297", "name": "林炳宏", "courseName": "危害辨識", "month": 8, "day": 19, "label": "上午"}, {"code": "159297", "name": "林炳宏", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "224307", "name": "許庭彰", "courseName": "健檢", "month": 3, "day": 5, "label": "三總"}, {"code": "224307", "name": "許庭彰", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "224307", "name": "許庭彰", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "224307", "name": "許庭彰", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "224307", "name": "許庭彰", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "224307", "name": "許庭彰", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "224307", "name": "許庭彰", "courseName": "缺氧作業主管", "month": 8, "day": 7, "label": "一天"}, {"code": "224307", "name": "許庭彰", "courseName": "急救人員", "month": 9, "day": 1, "label": "下午"}, {"code": "224307", "name": "許庭彰", "courseName": "職業安全衛生業務主管", "month": 9, "day": 9, "label": "一天"}, {"code": "271003", "name": "林宏儒", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "271003", "name": "林宏儒", "courseName": "甲種職業安全衛生業務主管教育訓練班", "month": 5, "day": 4, "label": "5/4~5/12"}, {"code": "271003", "name": "林宏儒", "courseName": "視覺化資料分析班", "month": 6, "day": 8, "label": "6/8~6/12"}, {"code": "271003", "name": "林宏儒", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "271003", "name": "林宏儒", "courseName": "健檢", "month": 7, "day": 13, "label": "三總"}, {"code": "271003", "name": "林宏儒", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "271003", "name": "林宏儒", "courseName": "有機溶劑作業主管", "month": 7, "day": 17, "label": "一天"}, {"code": "271003", "name": "林宏儒", "courseName": "施工架組配作業主管", "month": 7, "day": 20, "label": "一天"}, {"code": "271003", "name": "林宏儒", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "271003", "name": "林宏儒", "courseName": "職業安全衛生業務主管", "month": 7, "day": 22, "label": "一天"}, {"code": "271003", "name": "林宏儒", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "271003", "name": "林宏儒", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 11, "label": "上午"}, {"code": "271003", "name": "林宏儒", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "365700", "name": "陳柏均", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "365700", "name": "陳柏均", "courseName": "有機溶劑作業主管", "month": 7, "day": 3, "label": "一天"}, {"code": "365700", "name": "陳柏均", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "365700", "name": "陳柏均", "courseName": "職業安全衛生業務主管", "month": 7, "day": 15, "label": "一天"}, {"code": "365700", "name": "陳柏均", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "365700", "name": "陳柏均", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "365700", "name": "陳柏均", "courseName": "健檢", "month": 7, "day": 31, "label": "中心"}, {"code": "365700", "name": "陳柏均", "courseName": "施工架組配作業主管", "month": 8, "day": 3, "label": "一天"}, {"code": "365700", "name": "陳柏均", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 4, "label": "上午"}, {"code": "365700", "name": "陳柏均", "courseName": "缺氧作業主管", "month": 8, "day": 7, "label": "一天"}, {"code": "365700", "name": "陳柏均", "courseName": "急救人員", "month": 8, "day": 31, "label": "下午"}, {"code": "365700", "name": "陳柏均", "courseName": "領班管理研習(TWI)班", "month": 12, "day": 7, "label": "12/7~12/11"}, {"code": "420048", "name": "吳志成", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "420048", "name": "吳志成", "courseName": "健檢", "month": 4, "day": 13, "label": "中心"}, {"code": "420048", "name": "吳志成", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "420048", "name": "吳志成", "courseName": "職業安全衛生業務主管", "month": 7, "day": 8, "label": "一天"}, {"code": "420048", "name": "吳志成", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "420048", "name": "吳志成", "courseName": "有機溶劑作業主管", "month": 7, "day": 10, "label": "一天"}, {"code": "420048", "name": "吳志成", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "420048", "name": "吳志成", "courseName": "缺氧作業主管", "month": 8, "day": 7, "label": "一天"}, {"code": "420048", "name": "吳志成", "courseName": "荷重一公噸以上堆高機操作人員", "month": 8, "day": 21, "label": "上午"}, {"code": "420048", "name": "吳志成", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 27, "label": "上午"}, {"code": "420048", "name": "吳志成", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "420048", "name": "吳志成", "courseName": "領班管理研習(TWI)班", "month": 12, "day": 7, "label": "12/7~12/11"}, {"code": "420099", "name": "黃嵩捷", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "420099", "name": "黃嵩捷", "courseName": "職業安全衛生業務主管", "month": 7, "day": 15, "label": "一天"}, {"code": "420099", "name": "黃嵩捷", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "420099", "name": "黃嵩捷", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "420099", "name": "黃嵩捷", "courseName": "缺氧作業主管", "month": 7, "day": 31, "label": "一天"}, {"code": "420099", "name": "黃嵩捷", "courseName": "施工架組配作業主管", "month": 8, "day": 3, "label": "一天"}, {"code": "420099", "name": "黃嵩捷", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 13, "label": "上午"}, {"code": "420099", "name": "黃嵩捷", "courseName": "急救人員", "month": 8, "day": 31, "label": "下午"}, {"code": "424503", "name": "楊竣宇", "courseName": "輻射防護教育訓練", "month": 3, "day": 5, "label": "大潭"}, {"code": "424503", "name": "楊竣宇", "courseName": "有機溶劑作業主管", "month": 7, "day": 3, "label": "一天"}, {"code": "424503", "name": "楊竣宇", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "424503", "name": "楊竣宇", "courseName": "施工架組配作業主管", "month": 7, "day": 13, "label": "一天"}, {"code": "424503", "name": "楊竣宇", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "424503", "name": "楊竣宇", "courseName": "職業安全衛生業務主管", "month": 7, "day": 22, "label": "一天"}, {"code": "424503", "name": "楊竣宇", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "424503", "name": "楊竣宇", "courseName": "健檢", "month": 7, "day": 31, "label": "中心"}, {"code": "424503", "name": "楊竣宇", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 6, "label": "上午"}, {"code": "424503", "name": "楊竣宇", "courseName": "缺氧作業主管", "month": 8, "day": 7, "label": "一天"}, {"code": "438515", "name": "黃鴻鈞", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "438515", "name": "黃鴻鈞", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "438515", "name": "黃鴻鈞", "courseName": "有機溶劑作業主管", "month": 7, "day": 10, "label": "一天"}, {"code": "438515", "name": "黃鴻鈞", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "438515", "name": "黃鴻鈞", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "438515", "name": "黃鴻鈞", "courseName": "職業安全衛生業務主管", "month": 7, "day": 22, "label": "一天"}, {"code": "438515", "name": "黃鴻鈞", "courseName": "缺氧作業主管", "month": 7, "day": 31, "label": "一天"}, {"code": "438515", "name": "黃鴻鈞", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "440471", "name": "林時沂", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "440471", "name": "林時沂", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "440471", "name": "林時沂", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "440471", "name": "林時沂", "courseName": "缺氧作業主管", "month": 7, "day": 24, "label": "一天"}, {"code": "440471", "name": "林時沂", "courseName": "職業安全衛生業務主管", "month": 9, "day": 9, "label": "一天"}, {"code": "441802", "name": "吳喬隆", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "441802", "name": "吳喬隆", "courseName": "有機溶劑作業主管", "month": 7, "day": 10, "label": "一天"}, {"code": "441802", "name": "吳喬隆", "courseName": "職業安全衛生業務主管", "month": 7, "day": 15, "label": "一天"}, {"code": "441802", "name": "吳喬隆", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "441802", "name": "吳喬隆", "courseName": "施工架組配作業主管", "month": 7, "day": 20, "label": "一天"}, {"code": "441802", "name": "吳喬隆", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "441802", "name": "吳喬隆", "courseName": "缺氧作業主管", "month": 7, "day": 31, "label": "一天"}, {"code": "441802", "name": "吳喬隆", "courseName": "荷重一公噸以上堆高機操作人員", "month": 8, "day": 17, "label": "上午"}, {"code": "441802", "name": "吳喬隆", "courseName": "急救人員", "month": 8, "day": 31, "label": "上午"}, {"code": "485918", "name": "張綺真", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "485918", "name": "張綺真", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "485918", "name": "張綺真", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "485918", "name": "張綺真", "courseName": "職業安全衛生業務主管", "month": 8, "day": 5, "label": "一天"}, {"code": "485918", "name": "張綺真", "courseName": "急救人員", "month": 8, "day": 31, "label": "下午"}, {"code": "535474", "name": "陳思豪", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "535474", "name": "陳思豪", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "535474", "name": "陳思豪", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "572964", "name": "鍾銘軒", "courseName": "健檢", "month": 3, "day": 2, "label": "中心"}, {"code": "572964", "name": "鍾銘軒", "courseName": "輻射防護教育訓練", "month": 3, "day": 5, "label": "大潭"}, {"code": "572964", "name": "鍾銘軒", "courseName": "有機溶劑作業主管", "month": 7, "day": 3, "label": "一天"}, {"code": "572964", "name": "鍾銘軒", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "572964", "name": "鍾銘軒", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "572964", "name": "鍾銘軒", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "572964", "name": "鍾銘軒", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "572964", "name": "鍾銘軒", "courseName": "職業安全衛生業務主管", "month": 7, "day": 29, "label": "一天"}, {"code": "572964", "name": "鍾銘軒", "courseName": "缺氧作業主管", "month": 7, "day": 31, "label": "一天"}, {"code": "572964", "name": "鍾銘軒", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 13, "label": "上午"}, {"code": "572964", "name": "鍾銘軒", "courseName": "急救人員", "month": 9, "day": 1, "label": "上午"}, {"code": "572964", "name": "鍾銘軒", "courseName": "領班管理研習(TWI)班", "month": 12, "day": 7, "label": "12/7~12/11"}, {"code": "572990", "name": "李振誠", "courseName": "輻射防護教育訓練", "month": 3, "day": 5, "label": "大潭"}, {"code": "572990", "name": "李振誠", "courseName": "有機溶劑作業主管", "month": 7, "day": 3, "label": "一天"}, {"code": "572990", "name": "李振誠", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "572990", "name": "李振誠", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "572990", "name": "李振誠", "courseName": "健檢", "month": 7, "day": 7, "label": "三總"}, {"code": "572990", "name": "李振誠", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "572990", "name": "李振誠", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "572990", "name": "李振誠", "courseName": "職業安全衛生業務主管", "month": 7, "day": 29, "label": "一天"}, {"code": "572990", "name": "李振誠", "courseName": "缺氧作業主管", "month": 7, "day": 31, "label": "一天"}, {"code": "572990", "name": "李振誠", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 13, "label": "上午"}, {"code": "572990", "name": "李振誠", "courseName": "急救人員", "month": 9, "day": 1, "label": "上午"}, {"code": "572990", "name": "李振誠", "courseName": "手動超音波檢測班", "month": 9, "day": 14, "label": "9/14~9/18"}, {"code": "572990", "name": "李振誠", "courseName": "領班管理研習(TWI)班", "month": 12, "day": 7, "label": "12/7~12/11"}, {"code": "613493", "name": "王于任", "courseName": "健檢", "month": 3, "day": 6, "label": "中心"}, {"code": "613493", "name": "王于任", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "613493", "name": "王于任", "courseName": "有機溶劑作業主管", "month": 7, "day": 3, "label": "一天"}, {"code": "613493", "name": "王于任", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "613493", "name": "王于任", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "613493", "name": "王于任", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "613493", "name": "王于任", "courseName": "職業安全衛生業務主管", "month": 7, "day": 15, "label": "一天"}, {"code": "613493", "name": "王于任", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "613493", "name": "王于任", "courseName": "缺氧作業主管", "month": 7, "day": 31, "label": "一天"}, {"code": "613493", "name": "王于任", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 25, "label": "上午"}, {"code": "613493", "name": "王于任", "courseName": "危害辨識", "month": 8, "day": 26, "label": "上午"}, {"code": "614230", "name": "林玟均", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "614230", "name": "林玟均", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "660872", "name": "陳世龍", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "660872", "name": "陳世龍", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "660872", "name": "陳世龍", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "660872", "name": "陳世龍", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "660872", "name": "陳世龍", "courseName": "職業安全衛生業務主管", "month": 7, "day": 22, "label": "一天"}, {"code": "660872", "name": "陳世龍", "courseName": "施工架組配作業主管", "month": 8, "day": 3, "label": "一天"}, {"code": "660872", "name": "陳世龍", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 11, "label": "上午"}, {"code": "667725", "name": "徐振華", "courseName": "輻射防護教育訓練", "month": 3, "day": 5, "label": "大潭"}, {"code": "667725", "name": "徐振華", "courseName": "健檢", "month": 5, "day": 7, "label": "基隆長庚"}, {"code": "667725", "name": "徐振華", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "667725", "name": "徐振華", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "667725", "name": "徐振華", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "667725", "name": "徐振華", "courseName": "職業安全衛生業務主管", "month": 7, "day": 29, "label": "一天"}, {"code": "667725", "name": "徐振華", "courseName": "缺氧作業主管", "month": 7, "day": 31, "label": "一天"}, {"code": "667725", "name": "徐振華", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 6, "label": "上午"}, {"code": "667725", "name": "徐振華", "courseName": "荷重一公噸以上堆高機操作人員", "month": 8, "day": 10, "label": "上午"}, {"code": "667725", "name": "徐振華", "courseName": "急救人員", "month": 9, "day": 1, "label": "上午"}, {"code": "667790", "name": "吳宇軒", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "667790", "name": "吳宇軒", "courseName": "有機溶劑作業主管", "month": 7, "day": 10, "label": "一天"}, {"code": "667790", "name": "吳宇軒", "courseName": "職業安全衛生業務主管", "month": 7, "day": 15, "label": "一天"}, {"code": "667790", "name": "吳宇軒", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "667790", "name": "吳宇軒", "courseName": "施工架組配作業主管", "month": 7, "day": 20, "label": "一天"}, {"code": "667790", "name": "吳宇軒", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "667790", "name": "吳宇軒", "courseName": "缺氧作業主管", "month": 7, "day": 31, "label": "一天"}, {"code": "667790", "name": "吳宇軒", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 6, "label": "上午"}, {"code": "667790", "name": "吳宇軒", "courseName": "急救人員", "month": 9, "day": 1, "label": "上午"}, {"code": "667802", "name": "陳政瑋", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "667802", "name": "陳政瑋", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "667802", "name": "陳政瑋", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "667802", "name": "陳政瑋", "courseName": "健檢", "month": 7, "day": 10, "label": "三總"}, {"code": "667802", "name": "陳政瑋", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "667802", "name": "陳政瑋", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "667802", "name": "陳政瑋", "courseName": "職業安全衛生業務主管", "month": 7, "day": 29, "label": "一天"}, {"code": "667802", "name": "陳政瑋", "courseName": "缺氧作業主管", "month": 8, "day": 7, "label": "一天"}, {"code": "667802", "name": "陳政瑋", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 18, "label": "上午"}, {"code": "667802", "name": "陳政瑋", "courseName": "急救人員", "month": 9, "day": 1, "label": "上午"}, {"code": "667903", "name": "李祐誠", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "667903", "name": "李祐誠", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "667903", "name": "李祐誠", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "667903", "name": "李祐誠", "courseName": "職業安全衛生業務主管", "month": 7, "day": 29, "label": "一天"}, {"code": "667903", "name": "李祐誠", "courseName": "荷重一公噸以上堆高機操作人員", "month": 8, "day": 14, "label": "上午"}, {"code": "777829", "name": "林士瑄", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "777829", "name": "林士瑄", "courseName": "健檢", "month": 7, "day": 3, "label": "中心"}, {"code": "777829", "name": "林士瑄", "courseName": "有機溶劑作業主管", "month": 7, "day": 3, "label": "一天"}, {"code": "777829", "name": "林士瑄", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "777829", "name": "林士瑄", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "777829", "name": "林士瑄", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "777829", "name": "林士瑄", "courseName": "施工架組配作業主管", "month": 8, "day": 3, "label": "一天"}, {"code": "777829", "name": "林士瑄", "courseName": "缺氧作業主管", "month": 8, "day": 7, "label": "一天"}, {"code": "777829", "name": "林士瑄", "courseName": "基礎講師訓練班", "month": 8, "day": 10, "label": "8/10~8/14"}, {"code": "777829", "name": "林士瑄", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 20, "label": "上午"}, {"code": "777829", "name": "林士瑄", "courseName": "初級洩漏檢測班(示蹤法)", "month": 8, "day": 31, "label": "8/31~9/4"}, {"code": "777829", "name": "林士瑄", "courseName": "急救人員", "month": 9, "day": 1, "label": "上午"}, {"code": "777829", "name": "林士瑄", "courseName": "職業安全衛生業務主管", "month": 9, "day": 9, "label": "一天"}, {"code": "777829", "name": "林士瑄", "courseName": "手動超音波檢測班", "month": 9, "day": 14, "label": "9/14~9/18"}, {"code": "794418", "name": "曾建銘", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "794418", "name": "曾建銘", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "794418", "name": "曾建銘", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "794418", "name": "曾建銘", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "794418", "name": "曾建銘", "courseName": "職業安全衛生業務主管", "month": 7, "day": 29, "label": "一天"}, {"code": "794418", "name": "曾建銘", "courseName": "缺氧作業主管", "month": 8, "day": 7, "label": "一天"}, {"code": "794418", "name": "曾建銘", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 18, "label": "上午"}, {"code": "794418", "name": "曾建銘", "courseName": "急救人員", "month": 9, "day": 1, "label": "上午"}, {"code": "798140", "name": "呂侑儒", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "798140", "name": "呂侑儒", "courseName": "健檢", "month": 5, "day": 25, "label": "中心"}, {"code": "798140", "name": "呂侑儒", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "798140", "name": "呂侑儒", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "798140", "name": "呂侑儒", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "798140", "name": "呂侑儒", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "798140", "name": "呂侑儒", "courseName": "職業安全衛生業務主管", "month": 7, "day": 29, "label": "一天"}, {"code": "798140", "name": "呂侑儒", "courseName": "缺氧作業主管", "month": 8, "day": 7, "label": "一天"}, {"code": "798140", "name": "呂侑儒", "courseName": "急救人員", "month": 9, "day": 1, "label": "上午"}, {"code": "813675", "name": "王冠博", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "813675", "name": "王冠博", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "813675", "name": "王冠博", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 27, "label": "上午"}, {"code": "813675", "name": "王冠博", "courseName": "職業安全衛生業務主管", "month": 9, "day": 9, "label": "一天"}, {"code": "813903", "name": "李晨鍠", "courseName": "輻射防護教育訓練", "month": 3, "day": 20, "label": "大潭"}, {"code": "813903", "name": "李晨鍠", "courseName": "健檢", "month": 5, "day": 29, "label": "中心"}, {"code": "813903", "name": "李晨鍠", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "813903", "name": "李晨鍠", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "813903", "name": "李晨鍠", "courseName": "施工架組配作業主管", "month": 7, "day": 20, "label": "一天"}, {"code": "813903", "name": "李晨鍠", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "813903", "name": "李晨鍠", "courseName": "缺氧作業主管", "month": 7, "day": 31, "label": "一天"}, {"code": "813903", "name": "李晨鍠", "courseName": "職業安全衛生業務主管", "month": 8, "day": 5, "label": "一天"}, {"code": "813903", "name": "李晨鍠", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 18, "label": "上午"}, {"code": "813903", "name": "李晨鍠", "courseName": "急救人員", "month": 9, "day": 1, "label": "下午"}, {"code": "813927", "name": "張謙凌", "courseName": "施工架組配作業主管", "month": 7, "day": 6, "label": "一天"}, {"code": "813927", "name": "張謙凌", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "813927", "name": "張謙凌", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "813927", "name": "張謙凌", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "813927", "name": "張謙凌", "courseName": "職業安全衛生業務主管", "month": 8, "day": 5, "label": "一天"}, {"code": "813927", "name": "張謙凌", "courseName": "缺氧作業主管", "month": 8, "day": 7, "label": "一天"}, {"code": "813927", "name": "張謙凌", "courseName": "荷重一公噸以上堆高機操作人員", "month": 8, "day": 10, "label": "上午"}, {"code": "813927", "name": "張謙凌", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 18, "label": "上午"}, {"code": "813927", "name": "張謙凌", "courseName": "急救人員", "month": 9, "day": 1, "label": "下午"}, {"code": "900151", "name": "楊智名", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "900151", "name": "楊智名", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "900151", "name": "楊智名", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 11, "label": "上午"}, {"code": "900151", "name": "楊智名", "courseName": "危害辨識", "month": 8, "day": 26, "label": "上午"}, {"code": "900151", "name": "楊智名", "courseName": "急救人員", "month": 9, "day": 1, "label": "下午"}, {"code": "900151", "name": "楊智名", "courseName": "職業安全衛生業務主管", "month": 9, "day": 9, "label": "一天"}, {"code": "919946", "name": "李家緯", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "919946", "name": "李家緯", "courseName": "施工架組配作業主管", "month": 7, "day": 13, "label": "一天"}, {"code": "919946", "name": "李家緯", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "919946", "name": "李家緯", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "919946", "name": "李家緯", "courseName": "職業安全衛生業務主管", "month": 8, "day": 5, "label": "一天"}, {"code": "919946", "name": "李家緯", "courseName": "缺氧作業主管", "month": 8, "day": 7, "label": "一天"}, {"code": "919946", "name": "李家緯", "courseName": "危害辨識", "month": 8, "day": 19, "label": "上午"}, {"code": "919946", "name": "李家緯", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 20, "label": "上午"}, {"code": "919946", "name": "李家緯", "courseName": "急救人員", "month": 9, "day": 1, "label": "下午"}, {"code": "919959", "name": "李昇晉", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "919959", "name": "李昇晉", "courseName": "健檢", "month": 5, "day": 26, "label": "三總"}, {"code": "919959", "name": "李昇晉", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "919959", "name": "李昇晉", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "919959", "name": "李昇晉", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "919959", "name": "李昇晉", "courseName": "職業安全衛生業務主管", "month": 8, "day": 5, "label": "一天"}, {"code": "919959", "name": "李昇晉", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 11, "label": "上午"}, {"code": "919959", "name": "李昇晉", "courseName": "初級洩漏檢測班(示蹤法)", "month": 8, "day": 31, "label": "8/31~9/4"}, {"code": "926814", "name": "吳忠憲", "courseName": "中級目視檢測班", "month": 7, "day": 6, "label": "7/6~7/15"}, {"code": "926814", "name": "吳忠憲", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "926814", "name": "吳忠憲", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "926814", "name": "吳忠憲", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "926814", "name": "吳忠憲", "courseName": "職業安全衛生業務主管", "month": 7, "day": 29, "label": "一天"}, {"code": "926814", "name": "吳忠憲", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 13, "label": "上午"}, {"code": "926814", "name": "吳忠憲", "courseName": "荷重一公噸以上堆高機操作人員", "month": 8, "day": 14, "label": "上午"}, {"code": "926814", "name": "吳忠憲", "courseName": "急救人員", "month": 9, "day": 1, "label": "上午"}, {"code": "926826", "name": "邱重豪", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "926826", "name": "邱重豪", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "926826", "name": "邱重豪", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "926826", "name": "邱重豪", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "926826", "name": "邱重豪", "courseName": "職業安全衛生業務主管", "month": 8, "day": 5, "label": "一天"}, {"code": "926826", "name": "邱重豪", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 6, "label": "上午"}, {"code": "926826", "name": "邱重豪", "courseName": "缺氧作業主管", "month": 8, "day": 7, "label": "一天"}, {"code": "926826", "name": "邱重豪", "courseName": "荷重一公噸以上堆高機操作人員", "month": 8, "day": 10, "label": "上午"}, {"code": "926865", "name": "張志玄", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "926865", "name": "張志玄", "courseName": "健檢", "month": 5, "day": 7, "label": "基隆長庚"}, {"code": "926865", "name": "張志玄", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "926865", "name": "張志玄", "courseName": "施工架組配作業主管", "month": 7, "day": 13, "label": "一天"}, {"code": "926865", "name": "張志玄", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "926865", "name": "張志玄", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "926865", "name": "張志玄", "courseName": "職業安全衛生業務主管", "month": 8, "day": 5, "label": "一天"}, {"code": "926865", "name": "張志玄", "courseName": "缺氧作業主管", "month": 8, "day": 7, "label": "一天"}, {"code": "926865", "name": "張志玄", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 27, "label": "上午"}, {"code": "926865", "name": "張志玄", "courseName": "急救人員", "month": 9, "day": 1, "label": "下午"}, {"code": "926941", "name": "陳嘉濬", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "926941", "name": "陳嘉濬", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "926941", "name": "陳嘉濬", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "926941", "name": "陳嘉濬", "courseName": "荷重一公噸以上堆高機操作人員", "month": 8, "day": 10, "label": "上午"}, {"code": "926941", "name": "陳嘉濬", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 20, "label": "上午"}, {"code": "926941", "name": "陳嘉濬", "courseName": "交通安全講習", "month": 8, "day": 24, "label": "上午"}, {"code": "926941", "name": "陳嘉濬", "courseName": "急救人員", "month": 9, "day": 1, "label": "下午"}, {"code": "926941", "name": "陳嘉濬", "courseName": "職業安全衛生業務主管", "month": 9, "day": 9, "label": "一天"}, {"code": "956502", "name": "張瑋岑", "courseName": "輻射防護教育訓練", "month": 3, "day": 27, "label": "處內"}, {"code": "956502", "name": "張瑋岑", "courseName": "健檢", "month": 7, "day": 3, "label": "中心"}, {"code": "956502", "name": "張瑋岑", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "956502", "name": "張瑋岑", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "956502", "name": "張瑋岑", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "956502", "name": "張瑋岑", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 25, "label": "上午"}, {"code": "956502", "name": "張瑋岑", "courseName": "職業安全衛生業務主管", "month": 9, "day": 9, "label": "一天"}, {"code": "957504", "name": "李翊菁", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "957504", "name": "李翊菁", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "958658", "name": "蔡瀚承", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "958658", "name": "蔡瀚承", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "958658", "name": "蔡瀚承", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "958658", "name": "蔡瀚承", "courseName": "缺氧作業主管", "month": 8, "day": 7, "label": "一天"}, {"code": "958658", "name": "蔡瀚承", "courseName": "中級射線檢測班(資格專班)", "month": 8, "day": 17, "label": "8/17~9/2"}, {"code": "958658", "name": "蔡瀚承", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 25, "label": "上午"}, {"code": "958658", "name": "蔡瀚承", "courseName": "職業安全衛生業務主管", "month": 9, "day": 9, "label": "一天"}, {"code": "964698", "name": "朱彥豪", "courseName": "健檢", "month": 3, "day": 5, "label": "三總"}, {"code": "964698", "name": "朱彥豪", "courseName": "輻射防護教育訓練", "month": 3, "day": 20, "label": "大潭"}, {"code": "964698", "name": "朱彥豪", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "964698", "name": "朱彥豪", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "964698", "name": "朱彥豪", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "964698", "name": "朱彥豪", "courseName": "中級射線檢測班(資格專班)", "month": 8, "day": 17, "label": "8/17~9/2"}, {"code": "964698", "name": "朱彥豪", "courseName": "交通安全講習", "month": 8, "day": 24, "label": "上午"}, {"code": "964698", "name": "朱彥豪", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 25, "label": "上午"}, {"code": "964698", "name": "朱彥豪", "courseName": "初級洩漏檢測班(示蹤法)", "month": 8, "day": 31, "label": "8/31~9/4"}, {"code": "964698", "name": "朱彥豪", "courseName": "職業安全衛生業務主管", "month": 9, "day": 9, "label": "一天"}, {"code": "965552", "name": "陳 擎", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "965552", "name": "陳 擎", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "965552", "name": "陳 擎", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "965552", "name": "陳 擎", "courseName": "中級射線檢測班(資格專班)", "month": 8, "day": 17, "label": "8/17~9/2"}, {"code": "965552", "name": "陳 擎", "courseName": "起重機及吊掛操作人員", "month": 8, "day": 27, "label": "上午"}, {"code": "965552", "name": "陳 擎", "courseName": "職業安全衛生業務主管", "month": 9, "day": 9, "label": "一天"}, {"code": "969081", "name": "吳祖年", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "969081", "name": "吳祖年", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "969081", "name": "吳祖年", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "969081", "name": "吳祖年", "courseName": "中級射線檢測班(資格專班)", "month": 8, "day": 17, "label": "8/17~9/2"}, {"code": "969081", "name": "吳祖年", "courseName": "職業安全衛生業務主管", "month": 9, "day": 9, "label": "一天"}, {"code": "977316", "name": "張承元", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 9, "label": "上午"}, {"code": "977316", "name": "張承元", "courseName": "危害通識", "month": 7, "day": 16, "label": "上午"}, {"code": "977316", "name": "張承元", "courseName": "局限空間作業人員", "month": 7, "day": 23, "label": "上午"}, {"code": "977316", "name": "張承元", "courseName": "職業安全衛生業務主管", "month": 7, "day": 29, "label": "一天"}, {"code": "977316", "name": "張承元", "courseName": "急救人員", "month": 8, "day": 31, "label": "下午"}, {"code": "977328", "name": "林郁軒", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "977328", "name": "林郁軒", "courseName": "危害通識", "month": 7, "day": 14, "label": "上午"}, {"code": "977328", "name": "林郁軒", "courseName": "急救人員", "month": 9, "day": 1, "label": "下午"}, {"code": "977328", "name": "林郁軒", "courseName": "職業安全衛生業務主管", "month": 9, "day": 9, "label": "一天"}, {"code": "995225", "name": "陳廉淞", "courseName": "一般安全衛生在職教育訓練", "month": 7, "day": 7, "label": "上午"}, {"code": "995225", "name": "陳廉淞", "courseName": "局限空間作業人員", "month": 7, "day": 21, "label": "上午"}, {"code": "995225", "name": "陳廉淞", "courseName": "職業安全衛生業務主管", "month": 8, "day": 5, "label": "一天"}, {"code": "995225", "name": "陳廉淞", "courseName": "中級射線檢測班(資格專班)", "month": 8, "day": 17, "label": "8/17~9/2"}];
 
 const MONTH_NAMES = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 const WEEK_DAYS = ['日','一','二','三','四','五','六'];
-
-const COLORS = [
-  '#2563eb','#f97316','#10b981','#8b5cf6','#ef4444','#06b6d4',
-  '#ec4899','#84cc16','#f59e0b','#6366f1','#14b8a6','#e11d48',
-  '#7c3aed','#0ea5e9','#d946ef','#65a30d','#ea580c','#0891b2',
-  '#be185d','#4f46e5','#059669','#dc2626','#7c2d12','#1d4ed8'
-];
+const COLORS = ['#e74c3c','#3498db','#2ecc71','#9b59b6','#f39c12','#1abc9c','#e67e22','#34495e','#e91e63','#00bcd4','#8bc34a','#ff5722','#607d8b','#795548','#ff9800'];
 
 let currentData = [];
-let currentMonth = 7;
-let isAllMode = false;
-let courseColorMap = {};
+let currentMonth = null;
+let isAllMode = true;
 
-function buildColorMap(data) {
-  const courses = [...new Set(data.map(d => d.courseName))].sort();
-  courseColorMap = {};
-  courses.forEach((c, i) => courseColorMap[c] = COLORS[i % COLORS.length]);
-}
+// 建立課程名稱→顏色對應
+const allCourseNames = [...new Set(RAW_DATA.map(d => d.courseName))];
+const courseColorMap = {};
+allCourseNames.forEach((c, i) => courseColorMap[c] = COLORS[i % COLORS.length]);
 
-function search() {
+function searchCode() {
   const code = document.getElementById('codeInput').value.trim();
-  if (!code) return;
-  isAllMode = false;
+  if (!code) { searchAll(); return; }
   currentData = RAW_DATA.filter(d => d.code === code);
-  if (currentData.length === 0) {
-    document.getElementById('main').style.display = 'none';
-    document.getElementById('userInfo').style.display = 'block';
-    document.getElementById('userInfo').innerHTML = '<div class="status-bar"><span class="status-label">找不到代碼 <strong>' + code + '</strong> 的資料</span></div>';
-    return;
-  }
-  const name = currentData[0].name;
-  document.getElementById('userInfo').style.display = 'block';
-  document.getElementById('userInfo').innerHTML = '<div class="status-bar"><span class="status-label">查詢：<span class="status-val">' + (name ? name + ' ' : '') + code + '</span></span><span class="status-count">' + currentData.length + ' 堂</span></div>';
-  buildColorMap(currentData);
-  initMonths();
+  isAllMode = false;
+  document.getElementById('statusLabel').textContent = '代碼：' + code;
+  render();
 }
 
 function searchAll() {
-  isAllMode = true;
   currentData = RAW_DATA;
-  document.getElementById('codeInput').value = '';
-  document.getElementById('userInfo').style.display = 'block';
-  const people = new Set(RAW_DATA.map(d => d.code)).size;
-  document.getElementById('userInfo').innerHTML = '<div class="status-bar"><span class="status-label">全體彙總 <span class="status-val">' + people + ' 人</span></span><span class="status-count">' + RAW_DATA.length + ' 筆</span></div>';
-  buildColorMap(currentData);
-  initMonths();
-}
-
-function initMonths() {
-  const months = [...new Set(currentData.map(d => d.month))].sort((a,b) => a-b);
-  if (months.length === 0) return;
-  currentMonth = months[0];
-  document.getElementById('main').style.display = 'block';
+  isAllMode = true;
+  document.getElementById('statusLabel').textContent = '全體彙總';
   render();
 }
 
 function render() {
-  const months = [...new Set(currentData.map(d => d.month))].sort((a,b) => a-b);
-  const tabsHtml = months.map(m =>
-    `<button class="month-tab ${m===currentMonth?'active':''}" onclick="setMonth(${m})">${MONTH_NAMES[m-1]}</button>`
-  ).join('');
+  const months = [...new Set(currentData.map(d => d.month))].sort((a,b)=>a-b);
+  document.getElementById('statusCount').textContent = currentData.length + ' 筆';
+
+  if (!months.length) {
+    document.getElementById('monthTabs').innerHTML = '';
+    document.getElementById('legend').innerHTML = '';
+    document.getElementById('calendarGrid').innerHTML = '<div class="empty-msg">查無資料</div>';
+    document.getElementById('courseList').innerHTML = '';
+    return;
+  }
+
+  // 預設月份
+  if (!currentMonth || !months.includes(currentMonth)) currentMonth = months[0];
+
+  // 月份標籤
+  const tabsHtml = months.map(m => `<button class="month-tab ${m===currentMonth?'active':''}" onclick="setMonth(${m})">${MONTH_NAMES[m-1]}</button>`).join('');
   document.getElementById('monthTabs').innerHTML = tabsHtml;
+
   renderLegend();
   renderCalendar();
   renderList();
@@ -474,7 +444,7 @@ function renderCalendar() {
   const m = currentMonth;
   const firstDay = new Date(year, m-1, 1).getDay();
   const daysInMonth = new Date(year, m, 0).getDate();
-
+  
   const dayEvents = {};
   currentData.filter(d => d.month === m).forEach(d => {
     if (!dayEvents[d.day]) dayEvents[d.day] = [];
@@ -485,22 +455,23 @@ function renderCalendar() {
   const isCurrentMonth = today.getFullYear() === year && today.getMonth()+1 === m;
 
   let html = WEEK_DAYS.map(w => `<div class="day-header">${w}</div>`).join('');
-
+  
   for (let i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
-
+  
   for (let d = 1; d <= daysInMonth; d++) {
     const dow = (firstDay + d - 1) % 7;
     const isToday = isCurrentMonth && today.getDate() === d;
     const evs = dayEvents[d] || [];
-
+    
     let cls = 'cal-day';
     if (dow === 0) cls += ' sunday';
     if (dow === 6) cls += ' saturday';
     if (isToday) cls += ' today';
-
+    
     let evHtml = '';
     const maxShow = 3;
     if (isAllMode) {
+      // 彙總模式：顯示課程+人數
       const grouped = {};
       evs.forEach(e => {
         if (!grouped[e.courseName]) grouped[e.courseName] = 0;
@@ -515,28 +486,31 @@ function renderCalendar() {
     } else {
       evs.slice(0, maxShow).forEach(e => {
         const shortName = e.courseName.length > 6 ? e.courseName.slice(0,5)+'…' : e.courseName;
-        evHtml += `<div class="ev-chip" style="background:${courseColorMap[e.courseName]}" title="${e.courseName}">${shortName}</div>`;
+        evHtml += `<div class="ev-chip" style="background:${courseColorMap[e.courseName]}" title="${e.courseName} (${e.label})">${shortName}</div>`;
       });
       if (evs.length > maxShow) evHtml += `<div class="ev-more">+${evs.length-maxShow}</div>`;
     }
 
-    html += `<div class="${cls}"><div class="day-num">${d}</div>${evHtml}</div>`;
+    html += `<div class="${cls}"><div class="day-num">${d}</div><div class="events-in-day">${evHtml}</div></div>`;
   }
 
-  document.getElementById('calGrid').innerHTML = html;
-}
-
-function togglePanel(id) {
-  const el = document.getElementById(id);
-  el.classList.toggle('open');
+  document.getElementById('calendarGrid').innerHTML = html;
 }
 
 function renderList() {
-  const monthData = currentData.filter(d => d.month === currentMonth);
-  let html = '';
+  const monthData = currentData.filter(d => d.month === currentMonth)
+    .sort((a,b) => a.day-b.day || a.courseName.localeCompare(b.courseName));
+
+  const el = document.getElementById('courseList');
+  if (!monthData.length) {
+    el.innerHTML = '<div class="empty-msg">本月無課程</div>';
+    return;
+  }
+
+  let html = `<h3>${MONTH_NAMES[currentMonth-1]}課程清單</h3>`;
 
   if (isAllMode) {
-    document.getElementById('listTitle').textContent = MONTH_NAMES[currentMonth-1] + ' 全體課程';
+    // 彙總：依天分組，點擊可展開人員代號
     const byDay = {};
     monthData.forEach(e => {
       if (!byDay[e.day]) byDay[e.day] = {};
@@ -547,9 +521,7 @@ function renderList() {
     Object.keys(byDay).sort((a,b)=>+a-+b).forEach(day => {
       Object.entries(byDay[day]).forEach(([cname, info]) => {
         const pid = 'cp' + (panelIdx++);
-        const codesHtml = info.people.map(p =>
-          `<span class="code-tag">${p.name ? '<span class="tag-name">'+p.name+'</span>' : ''}<span class="tag-code">${p.code}</span></span>`
-        ).join('');
+        const codesHtml = info.people.map(p => `<span class="code-tag">${p.name ? p.name + ' ' : ''}${p.code}</span>`).join('');
         html += `<div class="course-list-item" onclick="togglePanel('${pid}')">
           <div class="course-date-badge">
             <div class="course-date-month">${MONTH_NAMES[currentMonth-1]}</div>
@@ -565,9 +537,8 @@ function renderList() {
       });
     });
   } else {
-    document.getElementById('listTitle').textContent = MONTH_NAMES[currentMonth-1] + ' 課程清單';
-    monthData.sort((a,b) => a.day - b.day).forEach(e => {
-      html += `<div class="course-list-item" style="cursor:default">
+    monthData.forEach(e => {
+      html += `<div class="course-list-item">
         <div class="course-date-badge">
           <div class="course-date-month">${MONTH_NAMES[currentMonth-1]}</div>
           <div class="course-date-day">${e.day}</div>
@@ -581,12 +552,18 @@ function renderList() {
     });
   }
 
-  if (!html) html = '<div class="empty-msg">本月無課程</div>';
-  document.getElementById('listBody').innerHTML = html;
+  el.innerHTML = html;
 }
 
-// 預設顯示全體彙總
+// 初始化
 searchAll();
+
+function togglePanel(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+document.getElementById('codeInput').addEventListener('keydown', e => { if (e.key === 'Enter') searchCode(); });
 </script>
 </body>
 </html>
